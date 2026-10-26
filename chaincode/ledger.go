@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/hyperledger/fabric-contract-api-go/v2/contractapi"
 )
 
 // LedgerManager handles core ledger operations
@@ -24,7 +22,7 @@ func NewLedgerManager(utils *Utils, permissions *PermissionManager, shardingMana
 }
 
 // GetDeposit retrieves a deposit by ID
-func (lm *LedgerManager) GetDeposit(ctx contractapi.TransactionContextInterface, depositID string) (*Deposit, error) {
+func (lm *LedgerManager) GetDeposit(ctx TransactionContextInterface, depositID string) (*Deposit, error) {
 	// Validate input
 	if !lm.utils.ValidateDepositID(depositID) {
 		return nil, fmt.Errorf("invalid deposit ID format: %s", depositID)
@@ -59,7 +57,7 @@ func (lm *LedgerManager) GetDeposit(ctx contractapi.TransactionContextInterface,
 }
 
 // GetShard retrieves a shard by ID
-func (lm *LedgerManager) GetShard(ctx contractapi.TransactionContextInterface, shardID string) (*Shard, error) {
+func (lm *LedgerManager) GetShard(ctx TransactionContextInterface, shardID string) (*Shard, error) {
 	// Get from state
 	shardBytes, err := ctx.GetStub().GetState(shardID)
 	if err != nil {
@@ -80,7 +78,7 @@ func (lm *LedgerManager) GetShard(ctx contractapi.TransactionContextInterface, s
 }
 
 // SaveDeposit saves a deposit to state
-func (lm *LedgerManager) SaveDeposit(ctx contractapi.TransactionContextInterface, deposit *Deposit) error {
+func (lm *LedgerManager) SaveDeposit(ctx TransactionContextInterface, deposit *Deposit) error {
 	if deposit == nil {
 		return fmt.Errorf("deposit cannot be nil")
 	}
@@ -101,7 +99,7 @@ func (lm *LedgerManager) SaveDeposit(ctx contractapi.TransactionContextInterface
 }
 
 // SaveShard saves a shard to state
-func (lm *LedgerManager) SaveShard(ctx contractapi.TransactionContextInterface, shard *Shard) error {
+func (lm *LedgerManager) SaveShard(ctx TransactionContextInterface, shard *Shard) error {
 	if shard == nil {
 		return fmt.Errorf("shard cannot be nil")
 	}
@@ -122,7 +120,7 @@ func (lm *LedgerManager) SaveShard(ctx contractapi.TransactionContextInterface, 
 }
 
 // SaveTransfer saves a transfer transaction to state
-func (lm *LedgerManager) SaveTransfer(ctx contractapi.TransactionContextInterface, transfer *DepositTransfer) error {
+func (lm *LedgerManager) SaveTransfer(ctx TransactionContextInterface, transfer *DepositTransfer) error {
 	if transfer == nil {
 		return fmt.Errorf("transfer cannot be nil")
 	}
@@ -141,7 +139,7 @@ func (lm *LedgerManager) SaveTransfer(ctx contractapi.TransactionContextInterfac
 }
 
 // SaveRedemption saves a redemption transaction to state
-func (lm *LedgerManager) SaveRedemption(ctx contractapi.TransactionContextInterface, redemption *DepositRedemption) error {
+func (lm *LedgerManager) SaveRedemption(ctx TransactionContextInterface, redemption *DepositRedemption) error {
 	if redemption == nil {
 		return fmt.Errorf("redemption cannot be nil")
 	}
@@ -160,7 +158,7 @@ func (lm *LedgerManager) SaveRedemption(ctx contractapi.TransactionContextInterf
 }
 
 // SaveAuditLog saves an audit log entry to state
-func (lm *LedgerManager) SaveAuditLog(ctx contractapi.TransactionContextInterface, auditLog AuditLog) error {
+func (lm *LedgerManager) SaveAuditLog(ctx TransactionContextInterface, auditLog AuditLog) error {
 	auditBytes, err := json.Marshal(auditLog)
 	if err != nil {
 		return fmt.Errorf("failed to marshal audit log: %v", err)
@@ -175,7 +173,7 @@ func (lm *LedgerManager) SaveAuditLog(ctx contractapi.TransactionContextInterfac
 }
 
 // SaveTransactionRecord saves a transaction record to state
-func (lm *LedgerManager) SaveTransactionRecord(ctx contractapi.TransactionContextInterface, record TransactionRecord) error {
+func (lm *LedgerManager) SaveTransactionRecord(ctx TransactionContextInterface, record TransactionRecord) error {
 	recordBytes, err := json.Marshal(record)
 	if err != nil {
 		return fmt.Errorf("failed to marshal transaction record: %v", err)
@@ -190,7 +188,7 @@ func (lm *LedgerManager) SaveTransactionRecord(ctx contractapi.TransactionContex
 }
 
 // QueryDepositsByRange queries deposits within a value range
-func (lm *LedgerManager) QueryDepositsByRange(ctx contractapi.TransactionContextInterface, minAmount, maxAmount float64) ([]*Deposit, error) {
+func (lm *LedgerManager) QueryDepositsByRange(ctx TransactionContextInterface, minAmount, maxAmount float64) ([]*Deposit, error) {
 	queryString := fmt.Sprintf(
 		`{"selector":{"docType":"deposit","amount":{"$gte":%f,"$lte":%f}}}`,
 		minAmount,
@@ -222,7 +220,7 @@ func (lm *LedgerManager) QueryDepositsByRange(ctx contractapi.TransactionContext
 }
 
 // QueryDepositsByStatus queries deposits by status
-func (lm *LedgerManager) QueryDepositsByStatus(ctx contractapi.TransactionContextInterface, status string) ([]*Deposit, error) {
+func (lm *LedgerManager) QueryDepositsByStatus(ctx TransactionContextInterface, status string) ([]*Deposit, error) {
 	queryString := fmt.Sprintf(
 		`{"selector":{"docType":"deposit","status":"%s"}}`,
 		status,
@@ -253,7 +251,7 @@ func (lm *LedgerManager) QueryDepositsByStatus(ctx contractapi.TransactionContex
 }
 
 // GetUserDeposits retrieves all deposits held by a user in a specific shard
-func (lm *LedgerManager) GetUserDeposits(ctx contractapi.TransactionContextInterface, userID, shardID string) ([]*Deposit, error) {
+func (lm *LedgerManager) GetUserDeposits(ctx TransactionContextInterface, userID, shardID string) ([]*Deposit, error) {
 	queryString := fmt.Sprintf(
 		`{"selector":{"docType":"deposit","shardId":"%s"}}`,
 		shardID,
@@ -290,7 +288,7 @@ func (lm *LedgerManager) GetUserDeposits(ctx contractapi.TransactionContextInter
 }
 
 // CreateIndex creates a composite index for efficient queries
-func (lm *LedgerManager) CreateIndex(ctx contractapi.TransactionContextInterface, indexName, docType string, attributes []string) error {
+func (lm *LedgerManager) CreateIndex(ctx TransactionContextInterface, indexName, docType string, attributes []string) error {
 	// Create index definition
 	indexDef := map[string]interface{}{
 		"index": map[string]interface{}{
@@ -300,13 +298,13 @@ func (lm *LedgerManager) CreateIndex(ctx contractapi.TransactionContextInterface
 		"type": "json",
 	}
 
-	indexDefJSON, err := json.Marshal(indexDef)
+	_, err := json.Marshal(indexDef)
 	if err != nil {
 		return fmt.Errorf("failed to marshal index definition: %v", err)
 	}
 
 	// Create the index
-	err = ctx.GetStub().CreateCompositeKey(indexName, []string{docType})
+	_, err = ctx.GetStub().CreateCompositeKey(indexName, []string{docType})
 	if err != nil {
 		return fmt.Errorf("failed to create index: %v", err)
 	}
@@ -315,7 +313,7 @@ func (lm *LedgerManager) CreateIndex(ctx contractapi.TransactionContextInterface
 }
 
 // DeleteDeposit deletes a deposit from state
-func (lm *LedgerManager) DeleteDeposit(ctx contractapi.TransactionContextInterface, depositID string) error {
+func (lm *LedgerManager) DeleteDeposit(ctx TransactionContextInterface, depositID string) error {
 	err := ctx.GetStub().DelState(depositID)
 	if err != nil {
 		return fmt.Errorf("failed to delete deposit: %v", err)
@@ -324,7 +322,7 @@ func (lm *LedgerManager) DeleteDeposit(ctx contractapi.TransactionContextInterfa
 }
 
 // GetDepositHistory retrieves the history of changes to a deposit
-func (lm *LedgerManager) GetDepositHistory(ctx contractapi.TransactionContextInterface, depositID string) ([]*TransactionRecord, error) {
+func (lm *LedgerManager) GetDepositHistory(ctx TransactionContextInterface, depositID string) ([]*TransactionRecord, error) {
 	queryString := fmt.Sprintf(
 		`{"selector":{"docType":"transactionRecord","entityId":"%s"}}`,
 		depositID,
@@ -356,7 +354,7 @@ func (lm *LedgerManager) GetDepositHistory(ctx contractapi.TransactionContextInt
 }
 
 // EmitEvent emits a chaincode event
-func (lm *LedgerManager) EmitEvent(ctx contractapi.TransactionContextInterface, eventName string, data interface{}) error {
+func (lm *LedgerManager) EmitEvent(ctx TransactionContextInterface, eventName string, data interface{}) error {
 	eventPayload, err := lm.utils.CreateEventPayload(eventName, data)
 	if err != nil {
 		return fmt.Errorf("failed to create event payload: %v", err)
@@ -372,7 +370,7 @@ func (lm *LedgerManager) EmitEvent(ctx contractapi.TransactionContextInterface, 
 
 // ReshardDeposit moves a deposit from one shard to another
 func (lm *LedgerManager) ReshardDeposit(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	deposit *Deposit,
 	newShardID string,
 ) error {
@@ -391,11 +389,6 @@ func (lm *LedgerManager) ReshardDeposit(
 	newShard, err := lm.GetShard(ctx, newShardID)
 	if err != nil {
 		return fmt.Errorf("failed to get new shard: %v", err)
-	}
-
-	// Store previous state for audit
-	previousState := map[string]interface{}{
-		"shardId": deposit.ShardID,
 	}
 
 	// Update deposit shard

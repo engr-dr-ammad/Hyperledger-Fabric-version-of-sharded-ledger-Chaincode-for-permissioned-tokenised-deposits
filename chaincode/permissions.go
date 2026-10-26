@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-
-	"github.com/hyperledger/fabric-contract-api-go/v2/contractapi"
 )
 
 // PermissionManager handles access control
@@ -21,7 +19,7 @@ const (
 )
 
 // RequireRole checks if the caller has the required role
-func (pm *PermissionManager) RequireRole(ctx contractapi.TransactionContextInterface, requiredRoles ...string) error {
+func (pm *PermissionManager) RequireRole(ctx TransactionContextInterface, requiredRoles ...string) error {
 	clientID := ctx.GetClientIdentity()
 
 	// Get MSPID for organization
@@ -47,27 +45,27 @@ func (pm *PermissionManager) RequireRole(ctx contractapi.TransactionContextInter
 }
 
 // RequireIssuer checks if the caller is an issuer
-func (pm *PermissionManager) RequireIssuer(ctx contractapi.TransactionContextInterface) error {
+func (pm *PermissionManager) RequireIssuer(ctx TransactionContextInterface) error {
 	return pm.RequireRole(ctx, string(RoleIssuer), string(RoleAdmin))
 }
 
 // RequireAdmin checks if the caller is an admin
-func (pm *PermissionManager) RequireAdmin(ctx contractapi.TransactionContextInterface) error {
+func (pm *PermissionManager) RequireAdmin(ctx TransactionContextInterface) error {
 	return pm.RequireRole(ctx, string(RoleAdmin))
 }
 
 // RequireDepositor checks if the caller is a depositor
-func (pm *PermissionManager) RequireDepositor(ctx contractapi.TransactionContextInterface) error {
+func (pm *PermissionManager) RequireDepositor(ctx TransactionContextInterface) error {
 	return pm.RequireRole(ctx, string(RoleDepositor), string(RoleAdmin))
 }
 
 // RequireAuditor checks if the caller is an auditor
-func (pm *PermissionManager) RequireAuditor(ctx contractapi.TransactionContextInterface) error {
+func (pm *PermissionManager) RequireAuditor(ctx TransactionContextInterface) error {
 	return pm.RequireRole(ctx, string(RoleAuditor), string(RoleAdmin))
 }
 
 // GetCallerOrgID returns the organization ID of the caller
-func (pm *PermissionManager) GetCallerOrgID(ctx contractapi.TransactionContextInterface) (string, error) {
+func (pm *PermissionManager) GetCallerOrgID(ctx TransactionContextInterface) (string, error) {
 	clientID := ctx.GetClientIdentity()
 	mspID, err := clientID.GetMSPID()
 	if err != nil {
@@ -77,18 +75,13 @@ func (pm *PermissionManager) GetCallerOrgID(ctx contractapi.TransactionContextIn
 }
 
 // GetCallerID returns the unique identifier of the caller
-func (pm *PermissionManager) GetCallerID(ctx contractapi.TransactionContextInterface) (string, error) {
+func (pm *PermissionManager) GetCallerID(ctx TransactionContextInterface) (string, error) {
 	clientID := ctx.GetClientIdentity()
 
-	// Get X509 certificate subject
-	id, err := clientID.GetX509Certificate()
-	if err != nil {
-		return "", fmt.Errorf("failed to get X509 certificate: %v", err)
-	}
-
-	// Use subject CN as caller ID
-	if id != nil && id.Subject.CommonName != "" {
-		return id.Subject.CommonName, nil
+	// Try to get caller ID from the client identity
+	id, err := clientID.GetID()
+	if err == nil && id != "" {
+		return id, nil
 	}
 
 	// Fallback: use MSP ID
@@ -100,7 +93,7 @@ func (pm *PermissionManager) GetCallerID(ctx contractapi.TransactionContextInter
 }
 
 // CanAccessDeposit checks if the caller can access a specific deposit
-func (pm *PermissionManager) CanAccessDeposit(ctx contractapi.TransactionContextInterface, deposit *Deposit) (bool, error) {
+func (pm *PermissionManager) CanAccessDeposit(ctx TransactionContextInterface, deposit *Deposit) (bool, error) {
 	callerID, err := pm.GetCallerID(ctx)
 	if err != nil {
 		return false, err
@@ -132,7 +125,7 @@ func (pm *PermissionManager) CanAccessDeposit(ctx contractapi.TransactionContext
 }
 
 // CanTransferDeposit checks if the caller can transfer a deposit
-func (pm *PermissionManager) CanTransferDeposit(ctx contractapi.TransactionContextInterface, deposit *Deposit, fromUserID string) error {
+func (pm *PermissionManager) CanTransferDeposit(ctx TransactionContextInterface, deposit *Deposit, fromUserID string) error {
 	callerID, err := pm.GetCallerID(ctx)
 	if err != nil {
 		return err
@@ -159,7 +152,7 @@ func (pm *PermissionManager) CanTransferDeposit(ctx contractapi.TransactionConte
 }
 
 // CanRedeemDeposit checks if the caller can redeem a deposit
-func (pm *PermissionManager) CanRedeemDeposit(ctx contractapi.TransactionContextInterface, deposit *Deposit, userID string) error {
+func (pm *PermissionManager) CanRedeemDeposit(ctx TransactionContextInterface, deposit *Deposit, userID string) error {
 	callerID, err := pm.GetCallerID(ctx)
 	if err != nil {
 		return err
@@ -186,7 +179,7 @@ func (pm *PermissionManager) CanRedeemDeposit(ctx contractapi.TransactionContext
 }
 
 // ValidateShardAccess checks if the caller can access a shard
-func (pm *PermissionManager) ValidateShardAccess(ctx contractapi.TransactionContextInterface, shard *Shard) error {
+func (pm *PermissionManager) ValidateShardAccess(ctx TransactionContextInterface, shard *Shard) error {
 	orgID, err := pm.GetCallerOrgID(ctx)
 	if err != nil {
 		return err
@@ -208,7 +201,7 @@ func (pm *PermissionManager) ValidateShardAccess(ctx contractapi.TransactionCont
 }
 
 // CheckCompliance verifies compliance requirements
-func (pm *PermissionManager) CheckCompliance(ctx contractapi.TransactionContextInterface, deposit *Deposit, amount float64) error {
+func (pm *PermissionManager) CheckCompliance(ctx TransactionContextInterface, deposit *Deposit, amount float64) error {
 	// Verify deposit is not expired
 	if deposit.ExpiresAt != "" {
 		expiresAt := deposit.ExpiresAt

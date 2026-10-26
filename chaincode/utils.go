@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hyperledger/fabric-contract-api-go/v2/contractapi"
 )
 
 // Utils provides utility functions for the chaincode
@@ -256,7 +255,7 @@ func (u *Utils) IsJSONValid(jsonStr string) bool {
 }
 
 // GetClientPrincipal extracts client principal from context
-func (u *Utils) GetClientPrincipal(ctx contractapi.TransactionContextInterface) string {
+func (u *Utils) GetClientPrincipal(ctx TransactionContextInterface) string {
 	clientID := ctx.GetClientIdentity()
 	principal, _ := clientID.GetID()
 	return principal

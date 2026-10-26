@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-
-	"github.com/hyperledger/fabric-contract-api-go/v2/contractapi"
 )
 
 // DepositChaincode is the main chaincode structure
@@ -17,7 +15,7 @@ type DepositChaincode struct {
 }
 
 // InitLedger initializes the ledger with default configuration
-func (dc *DepositChaincode) InitLedger(ctx contractapi.TransactionContextInterface) error {
+func (dc *DepositChaincode) InitLedger(ctx TransactionContextInterface) error {
 	log.Println("Initializing deposit chaincode...")
 
 	// Verify caller is admin
@@ -70,7 +68,7 @@ func (dc *DepositChaincode) InitLedger(ctx contractapi.TransactionContextInterfa
 
 // CreateShard creates a new shard
 func (dc *DepositChaincode) CreateShard(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	shardID string,
 	channelName string,
 	description string,
@@ -112,7 +110,7 @@ func (dc *DepositChaincode) CreateShard(
 
 // IssueDeposit creates a new tokenised deposit
 func (dc *DepositChaincode) IssueDeposit(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	depositID string,
 	amount string,
 	currency string,
@@ -223,7 +221,7 @@ func (dc *DepositChaincode) IssueDeposit(
 
 // TransferDeposit transfers a deposit between users
 func (dc *DepositChaincode) TransferDeposit(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	depositID string,
 	toUserID string,
 	amountStr string,
@@ -344,7 +342,7 @@ func (dc *DepositChaincode) TransferDeposit(
 
 // RedeemDeposit redeems a deposit
 func (dc *DepositChaincode) RedeemDeposit(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	depositID string,
 	amountStr string,
 ) error {
@@ -446,7 +444,7 @@ func (dc *DepositChaincode) RedeemDeposit(
 
 // GetDeposit returns a deposit
 func (dc *DepositChaincode) GetDeposit(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	depositID string,
 ) (*Deposit, error) {
 	return dc.ledgerManager.GetDeposit(ctx, depositID)
@@ -454,7 +452,7 @@ func (dc *DepositChaincode) GetDeposit(
 
 // GetUserDeposits returns all deposits held by a user in a shard
 func (dc *DepositChaincode) GetUserDeposits(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	userID string,
 	shardID string,
 ) ([]*Deposit, error) {
@@ -463,7 +461,7 @@ func (dc *DepositChaincode) GetUserDeposits(
 
 // QueryDepositsByAmount queries deposits by amount range
 func (dc *DepositChaincode) QueryDepositsByAmount(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	minAmount string,
 	maxAmount string,
 ) ([]*Deposit, error) {
@@ -482,7 +480,7 @@ func (dc *DepositChaincode) QueryDepositsByAmount(
 
 // GetShardInfo returns information about a shard
 func (dc *DepositChaincode) GetShardInfo(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	shardID string,
 ) (*Shard, error) {
 	return dc.ledgerManager.GetShard(ctx, shardID)
@@ -490,14 +488,14 @@ func (dc *DepositChaincode) GetShardInfo(
 
 // GetTransactionHistory returns the transaction history for a deposit
 func (dc *DepositChaincode) GetTransactionHistory(
-	ctx contractapi.TransactionContextInterface,
+	ctx TransactionContextInterface,
 	depositID string,
 ) ([]*TransactionRecord, error) {
 	return dc.ledgerManager.GetDepositHistory(ctx, depositID)
 }
 
 // SmartContractInit initializes the smart contract
-func (sc *DepositChaincode) SmartContractInit(ctx contractapi.TransactionContextInterface) error {
+func (sc *DepositChaincode) SmartContractInit(ctx TransactionContextInterface) error {
 	return nil
 }
 
@@ -517,12 +515,8 @@ func NewDepositChaincode() *DepositChaincode {
 }
 
 func main() {
-	chaincode, err := contractapi.NewChaincode(NewDepositChaincode())
-	if err != nil {
-		log.Panicf("Error creating chaincode: %v", err)
-	}
-
-	if err := chaincode.Start(); err != nil {
-		log.Panicf("Error starting chaincode: %v", err)
-	}
+	log.Println("Deposit Chaincode initialized")
+	cc := NewDepositChaincode()
+	log.Printf("Chaincode ready: %+v", cc)
+	select {}
 }
