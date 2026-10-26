@@ -1,0 +1,73 @@
+# Binary files
+deposit-chaincode
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go
+bin/
+vendor/
+dist/
+*.test
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Docker
+docker-compose.override.yml
+
+# Fabric
+crypto-config/
+channel-artifacts/
+hyperledger/
+fabric-bin/
+
+# Database
+couchdb/
+data/
+*.db
+
+# Logs
+*.log
+logs/
+
+# Test files
+coverage.out
+*.cover
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Project specific
+blockchain.block
+*.tar.gz
+*.zip
+test-results/
+
+# Private keys
+*.key
+*.pem
+private/
+
+# Credentials
+credentials.json
+config.secret.yaml
