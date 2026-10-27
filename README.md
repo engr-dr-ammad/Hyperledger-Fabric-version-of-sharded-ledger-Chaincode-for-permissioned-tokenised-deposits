@@ -223,6 +223,10 @@ Proprietary - All rights reserved
 
 For issues and support, please contact the development team or create an issue in the repository.
 
+## Authors
+
+Developed by **Ammad Aslam** with AI-assisted tooling.
+
 ## References
 
 - [Hyperledger Fabric Documentation](https://hyperledger-fabric.readthedocs.io/)
